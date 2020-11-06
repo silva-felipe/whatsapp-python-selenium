@@ -1,0 +1,47 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
+import time
+
+
+# Opcoes para nao precisar logar a cada inicio
+options = webdriver.ChromeOptions()
+options.add_argument('--user-data-dir=/Users/<USERNAME>/Library/Application Support/Google/Chrome/Default')
+options.add_argument('--profile-directory=Default')
+
+# abrindo o browser e carregando a pagina
+driver = webdriver.Chrome("/<FOLDER>/chromedriver", options=options)
+driver.maximize_window()
+driver.get("https://web.whatsapp.com")
+
+# abrindo e carregando a lista de contatos do arquivo.txt
+contact_lst = []
+with open('contatos.txt', 'r', encoding='utf-8-sig') as contatos:
+    for contato in contatos:
+        contato = contato.strip()
+        contact_lst.append(contato)
+
+# tempo de espera para continuar o processo, tempo para iniciar o browser e carregar.
+time.sleep(10)
+
+# info para envio de mensagem
+# user_name = '{}'.format(input('Name: ')) --> utilizar se vc quiser mandar msg individualmente.
+
+# mensagem a ser enviada
+msg_send = '{}'.format(input('msg: '))
+
+
+# loop para envio da mesma msg para todos os contatos da lista
+for contact in contact_lst:
+    user_name = contact
+    driver.find_element_by_xpath('//span[@title="{}"]'.format(user_name)).click()
+
+    message_box = driver.find_element_by_xpath('//div[@class="_3uMse"]')
+    message_box.send_keys(msg_send)
+
+    xpath_send = '//button[@class="_1U1xa"]'
+    send = WebDriverWait(driver, 10).until(
+        ec.presence_of_element_located((By.XPATH, xpath_send))
+    )
+    send.click()
